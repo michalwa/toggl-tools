@@ -1,0 +1,15 @@
+[package]
+name = "toggl-tools"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.21", features = ["macros", "rt"] }
+reqwest = { version = "0.11", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+clap = { version = "4.0", features = ["derive"] }
+tabwriter = "1.2"
+dotenv = "0.15"
+itertools = "0.10"
+chrono = "0.4"
+chrono-english = "0.1"
