@@ -63,7 +63,7 @@ pub async fn run_summary(args: SummaryArgs) -> Result<(), Box<dyn StdError>> {
             total_duration.num_minutes() % 60,
             total_duration.num_seconds() % 60,
             project.name,
-            time_entries.into_iter().map(|e| &e.description).join("; ")
+            time_entries.into_iter().map(|e| &e.description).join(", ")
         )
         .unwrap();
     }
