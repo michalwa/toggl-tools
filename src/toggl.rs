@@ -1,4 +1,5 @@
 use chrono::{Date, Local};
+use hex_color::HexColor;
 use reqwest::Url;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -77,4 +78,5 @@ pub struct TimeEntry {
 #[derive(Deserialize)]
 pub struct Project {
     pub name: String,
+    pub color: HexColor,
 }
