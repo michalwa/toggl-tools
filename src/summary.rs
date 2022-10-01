@@ -1,3 +1,4 @@
+use crate::time_utils::{parse_human_date, TimeResolution};
 use crate::toggl::TogglClient;
 use chrono::{Date, Duration, Local};
 use clap::Args;
@@ -7,15 +8,12 @@ use std::{env, error::Error as StdError};
 
 #[derive(Args)]
 pub struct SummaryArgs {
-    #[arg(short, long, value_parser = parse_human_date)]
+    #[arg(short, long, value_parser = parse_human_date, help = "[default: today]")]
     start_date: Option<Date<Local>>,
-    #[arg(short, long, value_parser = parse_human_date)]
+    #[arg(short, long, value_parser = parse_human_date, help = "[default: start_date + 1 day]")]
     end_date: Option<Date<Local>>,
-}
-
-fn parse_human_date(string: &str) -> chrono_english::DateResult<Date<Local>> {
-    chrono_english::parse_date_string(string, Local::now(), chrono_english::Dialect::Uk)
-        .map(|dt| dt.date())
+    #[arg(short, long, default_value_t = TimeResolution::Minutes)]
+    time_resolution: TimeResolution,
 }
 
 impl SummaryArgs {
@@ -50,13 +48,10 @@ pub async fn run_summary(args: SummaryArgs) -> Result<(), Box<dyn StdError>> {
         let total_duration_secs: u32 = time_entries.iter().map(|e| e.duration_seconds).sum();
         let total_duration = Duration::seconds(total_duration_secs as i64);
 
-        let total_duration_formatted = format!(
-            "{:02}:{:02}:{:02}",
-            total_duration.num_hours(),
-            total_duration.num_minutes() % 60,
-            total_duration.num_seconds() % 60,
-        )
-        .bright_black();
+        let total_duration_formatted = args
+            .time_resolution
+            .format_duration(&total_duration)
+            .bright_black();
 
         println!(
             "{} {:-20} {}",

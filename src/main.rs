@@ -4,6 +4,7 @@ use std::error::Error as StdError;
 use summary::{run_summary, SummaryArgs};
 
 mod summary;
+mod time_utils;
 mod toggl;
 
 #[derive(Parser)]
