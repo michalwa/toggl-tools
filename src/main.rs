@@ -7,6 +7,7 @@ mod summary;
 mod time_utils;
 mod toggl;
 
+/// Utilities for working with the Toggl Track API
 #[derive(Parser)]
 struct Cli {
     #[command(subcommand)]
@@ -15,6 +16,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Prints a summary of time tracking entries from a select time period
+    #[command(verbatim_doc_comment)]
     Summary(SummaryArgs),
 }
 
@@ -24,6 +27,8 @@ async fn main() -> Result<(), Box<dyn StdError>> {
     let args = Cli::parse();
 
     match args.command {
-        Command::Summary(args) => run_summary(args).await,
+        Command::Summary(args) => run_summary(args).await?,
     }
+
+    Ok(())
 }

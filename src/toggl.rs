@@ -3,7 +3,21 @@ use hex_color::HexColor;
 use reqwest::Url;
 use serde::Deserialize;
 use std::collections::HashMap;
-use std::error::Error as StdError;
+
+#[derive(Debug, Deserialize)]
+pub struct TimeEntry {
+    pub description: String,
+    pub workspace_id: u32,
+    pub project_id: u32,
+    #[serde(rename = "duration")]
+    pub duration_seconds: u32,
+}
+
+#[derive(Deserialize)]
+pub struct Project {
+    pub name: String,
+    pub color: HexColor,
+}
 
 pub struct TogglClient {
     http: reqwest::Client,
@@ -24,30 +38,30 @@ impl TogglClient {
         &self,
         start_date: Date<Local>,
         end_date: Date<Local>,
-    ) -> Result<Vec<TimeEntry>, Box<dyn StdError>> {
+    ) -> reqwest::Result<Vec<TimeEntry>> {
         let url = Url::parse_with_params(
             "https://api.track.toggl.com/api/v9/me/time_entries",
             [
                 ("start_date", start_date.format("%Y-%m-%d").to_string()),
                 ("end_date", end_date.format("%Y-%m-%d").to_string()),
             ],
-        )?;
+        )
+        .unwrap();
 
-        Ok(self
-            .http
+        self.http
             .get(url)
             .basic_auth(&self.api_token, Some("api_token"))
             .send()
             .await?
             .json::<Vec<TimeEntry>>()
-            .await?)
+            .await
     }
 
     pub async fn fetch_project(
         &mut self,
         workspace_id: u32,
         project_id: u32,
-    ) -> Result<&Project, Box<dyn StdError>> {
+    ) -> reqwest::Result<&Project> {
         if self.projects.contains_key(&(workspace_id, project_id)) {
             let project = &self.projects[&(workspace_id, project_id)];
             return Ok(project);
@@ -64,19 +78,4 @@ impl TogglClient {
         self.projects.insert((workspace_id, project_id), project);
         Ok(&self.projects[&(workspace_id, project_id)])
     }
-}
-
-#[derive(Debug, Deserialize)]
-pub struct TimeEntry {
-    pub description: String,
-    pub workspace_id: u32,
-    pub project_id: u32,
-    #[serde(rename = "duration")]
-    pub duration_seconds: u32,
-}
-
-#[derive(Deserialize)]
-pub struct Project {
-    pub name: String,
-    pub color: HexColor,
 }

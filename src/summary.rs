@@ -4,7 +4,7 @@ use chrono::{Date, Duration, Local};
 use clap::Args;
 use colored::Colorize;
 use itertools::Itertools;
-use std::{env, error::Error as StdError};
+use std::env;
 
 #[derive(Args)]
 pub struct SummaryArgs {
@@ -27,7 +27,8 @@ impl SummaryArgs {
     }
 }
 
-pub async fn run_summary(args: SummaryArgs) -> Result<(), Box<dyn StdError>> {
+/// Fetches, calculates and prints the summary
+pub async fn run_summary(args: SummaryArgs) -> reqwest::Result<()> {
     let mut client =
         TogglClient::new(env::var("TOGGL_API_TOKEN").expect("TOGGL_API_TOKEN must be set"));
 
