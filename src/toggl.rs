@@ -26,10 +26,10 @@ pub struct TogglClient {
 }
 
 impl TogglClient {
-    pub fn new(api_key: impl Into<String>) -> Self {
+    pub fn new(api_token: impl Into<String>) -> Self {
         Self {
             http: reqwest::Client::new(),
-            api_token: api_key.into(),
+            api_token: api_token.into(),
             projects: HashMap::new(),
         }
     }
