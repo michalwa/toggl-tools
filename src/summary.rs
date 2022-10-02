@@ -54,8 +54,10 @@ pub async fn run_summary(args: SummaryArgs) -> reqwest::Result<()> {
         .iter()
         .group_by(|e| (e.workspace_id, e.project_id))
     {
-        let mut time_entries = time_entries.collect::<Vec<_>>();
-        time_entries.sort_by_key(|e| &e.description);
+        let time_entries = time_entries
+            .filter(|e| !e.description.is_empty())
+            .sorted_by_key(|e| &e.description)
+            .collect::<Vec<_>>();
 
         let project = if let Some(project_id) = project_id {
             client.fetch_project(workspace_id, project_id).await?
