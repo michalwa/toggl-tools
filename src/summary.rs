@@ -54,10 +54,7 @@ pub async fn run_summary(args: SummaryArgs) -> reqwest::Result<()> {
         .iter()
         .group_by(|e| (e.workspace_id, e.project_id))
     {
-        let time_entries = time_entries
-            .filter(|e| !e.description.is_empty())
-            .sorted_by_key(|e| &e.description)
-            .collect::<Vec<_>>();
+        let time_entries = time_entries.collect::<Vec<_>>();
 
         let project = if let Some(project_id) = project_id {
             client.fetch_project(workspace_id, project_id).await?
@@ -67,18 +64,22 @@ pub async fn run_summary(args: SummaryArgs) -> reqwest::Result<()> {
 
         let total_duration_secs: u32 = time_entries.iter().map(|e| e.duration_seconds).sum();
         let total_duration = Duration::seconds(total_duration_secs as i64);
-        let total_duration_formatted = args
-            .time_resolution
-            .format_duration(&total_duration)
-            .bright_black();
+        let total_duration_formatted = args.time_resolution.format_duration(&total_duration);
+
+        let mut time_entry_descriptions = time_entries
+            .into_iter()
+            .map(|e| &e.description)
+            .filter(|s| !s.is_empty())
+            .unique()
+            .sorted();
 
         println!(
             "{} {:-20} {}",
-            total_duration_formatted,
+            total_duration_formatted.bright_black(),
             project
                 .name
                 .truecolor(project.color.r, project.color.g, project.color.b),
-            time_entries.into_iter().map(|e| &e.description).join(", ")
+            time_entry_descriptions.join(", "),
         );
     }
 

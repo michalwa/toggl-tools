@@ -1,6 +1,5 @@
 use clap::{Parser, Subcommand};
 use dotenv::dotenv;
-use std::error::Error as StdError;
 use summary::{run_summary, SummaryArgs};
 
 mod summary;
@@ -22,13 +21,13 @@ enum Command {
 }
 
 #[tokio::main(flavor = "current_thread")]
-async fn main() -> Result<(), Box<dyn StdError>> {
+async fn main() {
     dotenv().ok();
     let args = Cli::parse();
 
     match args.command {
-        Command::Summary(args) => run_summary(args).await?,
+        Command::Summary(args) => run_summary(args).await,
     }
-
-    Ok(())
+    .map_err(|e| panic!("{e}"))
+    .ok();
 }
