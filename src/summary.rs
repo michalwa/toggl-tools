@@ -1,5 +1,5 @@
 use crate::time_utils::{parse_human_date, TimeResolution};
-use crate::toggl::TogglClient;
+use crate::toggl::{Project, TogglClient};
 use chrono::{Date, Duration, Local};
 use clap::Args;
 use colored::Colorize;
@@ -29,6 +29,18 @@ impl SummaryArgs {
 
 /// Fetches, calculates and prints the summary
 pub async fn run_summary(args: SummaryArgs) -> reqwest::Result<()> {
+    use hex_color::HexColor;
+
+    let default_project = Project {
+        name: "(no project)".into(),
+        color: HexColor {
+            r: 0x7f,
+            g: 0x7f,
+            b: 0x7f,
+            a: 0xff,
+        },
+    };
+
     let mut client =
         TogglClient::new(env::var("TOGGL_API_TOKEN").expect("TOGGL_API_TOKEN must be set"));
 
@@ -45,10 +57,14 @@ pub async fn run_summary(args: SummaryArgs) -> reqwest::Result<()> {
         let mut time_entries = time_entries.collect::<Vec<_>>();
         time_entries.sort_by_key(|e| &e.description);
 
-        let project = client.fetch_project(workspace_id, project_id).await?;
+        let project = if let Some(project_id) = project_id {
+            client.fetch_project(workspace_id, project_id).await?
+        } else {
+            &default_project
+        };
+
         let total_duration_secs: u32 = time_entries.iter().map(|e| e.duration_seconds).sum();
         let total_duration = Duration::seconds(total_duration_secs as i64);
-
         let total_duration_formatted = args
             .time_resolution
             .format_duration(&total_duration)

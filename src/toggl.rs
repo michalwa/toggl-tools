@@ -8,7 +8,7 @@ use std::collections::HashMap;
 pub struct TimeEntry {
     pub description: String,
     pub workspace_id: u32,
-    pub project_id: u32,
+    pub project_id: Option<u32>,
     #[serde(rename = "duration")]
     pub duration_seconds: u32,
 }
