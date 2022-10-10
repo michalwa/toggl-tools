@@ -1,4 +1,4 @@
-use chrono::{Date, Local};
+use chrono::{Date, Local, DateTime};
 use hex_color::HexColor;
 use reqwest::Url;
 use serde::Deserialize;
@@ -10,7 +10,18 @@ pub struct TimeEntry {
     pub workspace_id: u32,
     pub project_id: Option<u32>,
     #[serde(rename = "duration")]
-    pub duration_seconds: u32,
+    duration_seconds: i32,
+    pub start: DateTime<Local>,
+}
+
+impl TimeEntry {
+    pub fn duration_seconds(&self) -> u32 {
+        if self.duration_seconds >= 0 {
+            self.duration_seconds as u32
+        } else {
+            (Local::now() - self.start).num_seconds() as u32
+        }
+    }
 }
 
 #[derive(Deserialize)]

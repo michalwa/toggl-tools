@@ -62,7 +62,7 @@ pub async fn run_summary(args: SummaryArgs) -> reqwest::Result<()> {
             &default_project
         };
 
-        let total_duration_secs: u32 = time_entries.iter().map(|e| e.duration_seconds).sum();
+        let total_duration_secs: u32 = time_entries.iter().map(|e| e.duration_seconds()).sum();
         let total_duration = Duration::seconds(total_duration_secs as i64);
         let total_duration_formatted = args.time_resolution.format_duration(&total_duration);
 
