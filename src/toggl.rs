@@ -1,4 +1,4 @@
-use chrono::{Date, Local, DateTime};
+use chrono::{DateTime, Local, NaiveDate};
 use hex_color::HexColor;
 use reqwest::Url;
 use serde::Deserialize;
@@ -47,8 +47,8 @@ impl TogglClient {
 
     pub async fn fetch_time_entries(
         &self,
-        start_date: Date<Local>,
-        end_date: Date<Local>,
+        start_date: NaiveDate,
+        end_date: NaiveDate,
     ) -> reqwest::Result<Vec<TimeEntry>> {
         let url = Url::parse_with_params(
             "https://api.track.toggl.com/api/v9/me/time_entries",

@@ -1,4 +1,4 @@
-use chrono::{Date, Duration, Local};
+use chrono::{Duration, Local, NaiveDate};
 use clap::ValueEnum;
 use std::fmt;
 
@@ -38,9 +38,9 @@ impl fmt::Display for TimeResolution {
     }
 }
 
-pub fn parse_human_date(string: &str) -> chrono_english::DateResult<Date<Local>> {
+pub fn parse_human_date(string: &str) -> chrono_english::DateResult<NaiveDate> {
     chrono_english::parse_date_string(string, Local::now(), chrono_english::Dialect::Uk)
-        .map(|dt| dt.date())
+        .map(|dt| dt.date_naive())
 }
 
 #[cfg(test)]

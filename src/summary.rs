@@ -1,6 +1,6 @@
 use crate::time_utils::{parse_human_date, TimeResolution};
 use crate::toggl::{Project, TogglClient};
-use chrono::{Date, Duration, Local};
+use chrono::{Duration, Local, NaiveDate};
 use clap::Args;
 use colored::Colorize;
 use itertools::Itertools;
@@ -9,19 +9,19 @@ use std::env;
 #[derive(Args)]
 pub struct SummaryArgs {
     #[arg(short, long, value_parser = parse_human_date, help = "[default: today]")]
-    start_date: Option<Date<Local>>,
+    start_date: Option<NaiveDate>,
     #[arg(short, long, value_parser = parse_human_date, help = "[default: start_date + 1 day]")]
-    end_date: Option<Date<Local>>,
+    end_date: Option<NaiveDate>,
     #[arg(short, long, default_value_t = TimeResolution::Minutes)]
     time_resolution: TimeResolution,
 }
 
 impl SummaryArgs {
-    fn start_date(&self) -> Date<Local> {
-        self.start_date.unwrap_or_else(Local::today)
+    fn start_date(&self) -> NaiveDate {
+        self.start_date.unwrap_or_else(|| Local::now().date_naive())
     }
 
-    fn end_date(&self) -> Date<Local> {
+    fn end_date(&self) -> NaiveDate {
         self.end_date
             .unwrap_or_else(|| self.start_date() + Duration::days(1))
     }
